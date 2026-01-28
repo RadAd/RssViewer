@@ -70,7 +70,7 @@
       const errors = [];
       // 1) Try direct fetch first
       try {
-        const resp = await fetchWithTimeout(url, {}, 10000);
+        const resp = await fetchWithTimeout(url);
         if (!resp.ok) throw new Error('Network response was not ok: ' + resp.status);
         return await resp.text();
       } catch (err) {
@@ -84,7 +84,7 @@
           // Some proxies expect the raw url appended, others expect it encoded.
           // We'll encode unless the proxy string ends with '/fetch/' which commonly accepts raw.
           const proxyUrl = proxy.endsWith('/fetch/') ? (proxy + url) : (proxy + encodeURIComponent(url));
-          const resp = await fetchWithTimeout(proxyUrl, {}, 10000);
+          const resp = await fetchWithTimeout(proxyUrl);
           if (!resp.ok) throw new Error('Proxy response was not ok: ' + resp.status + ' from ' + proxy);
           return await resp.text();
         } catch (err) {
@@ -234,6 +234,7 @@
           }
 
           if (contentRaw && options.allowHtml && window.DOMPurify) {
+            alert("sanitized");
             contentEl.innerHTML = DOMPurify.sanitize(contentRaw);
           } else {
             // Safe default: insert as text
