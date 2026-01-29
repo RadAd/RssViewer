@@ -26,8 +26,10 @@
     </template>
 
     <template id="media-template">
-        <img class="media-image"></img>
-        <p class="media-content"></p>
+        <div class="media-div">
+            <img class="media-image"></img>
+            <p class="media-content"></p>
+        </div>
     </template>
 
     <div id="entries" aria-live="polite"></div>
@@ -59,6 +61,7 @@
 
     // Fetch text helper with optional CORS-proxy fallback (tries multiple proxies)
     const CORS_PROXIES = [
+      'https://corsproxy.io/?url=',
       'https://api.allorigins.win/raw?url=',
       'https://thingproxy.freeboard.io/fetch/',   // some proxies accept raw URL
       'https://api.codetabs.cn/ajax?url='         // another commonly used public proxy
