@@ -225,10 +225,6 @@
             if (dnode && dnode.textContent) { dateText = dnode.textContent.trim(); break; }
           }
           if (dateText) {
-            if (dateText[10] == " ") {
-              dateText = dateText.replace("-", "/");
-              dateText = dateText.replace("-", "/");
-            }
             var d = new Date(dateText);
             dateEl.textContent = (isNaN(d.getTime()) ? dateText : d.toLocaleString());
             dateEl.setAttribute('datetime', dateText);
