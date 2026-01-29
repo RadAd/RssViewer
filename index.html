@@ -256,8 +256,12 @@
 
     // Prompt for URL and load
     (function init() {
-      var defaultUrl = "https://github.com/RadAd.atom";
-      var rssurl = window.prompt("RSS Url:", defaultUrl);
+      const urlParams = new URLSearchParams(window.location.search);
+      var rssurl = urlParams.get('rss');
+      if (!rssurl) {
+        var defaultUrl = "https://github.com/RadAd.atom";
+        rssurl = window.prompt("RSS Url:", defaultUrl);
+      }
       if (!rssurl) {
         document.getElementById('entries').textContent = 'No RSS URL provided.';
         return;
