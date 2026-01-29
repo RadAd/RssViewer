@@ -150,6 +150,22 @@
       return el.textContent || '';
     }
 
+    function setNodeLink(node, text, link) {
+      if (link) {
+          // set anchor attributes so it behaves like a normal external link
+          node.textContent = text;
+          node.setAttribute('href', link);
+          node.setAttribute('target', '_blank');
+          node.setAttribute('rel', 'noopener');
+      } else {
+          // no link found: replace anchor with a plain span to avoid a dead link
+          var span = document.createElement('span');
+          span.className = node.className;
+          span.textContent = text;
+          node.parentNode.replaceChild(span, node);
+      }
+    }
+
     // Main: fetch and render feed using template + DOMPurify for any HTML
     async function fetchAndRenderFeed(rssurl, options) {
       options = options || { allowHtml: true };
@@ -173,21 +189,7 @@
 
         // Feed-level title
         var feedTitle = (doc.getElementsByTagName('title')[0] && doc.getElementsByTagName('title')[0].textContent) || 'Feed';
-        // Link handling: use feed's alternate link (via findLink)
-        var link = findLink(doc);
-        if (link) {
-            // set anchor attributes so it behaves like a normal external link
-            feedLinkEl.textContent = feedTitle;
-            feedLinkEl.setAttribute('href', link);
-            feedLinkEl.setAttribute('target', '_blank');
-            feedLinkEl.setAttribute('rel', 'noopener');
-        } else {
-            // no link found: replace anchor with a plain span to avoid a dead link
-            var span = document.createElement('span');
-            span.className = feedLinkE.className;
-            span.textContent = feedTitle;
-            feedLinkEl.parentNode.replaceChild(span, feedLinkEl);
-        }
+        setNodeLink(feedLinkEl, feedTitle, findLink(doc));
         feedInfoEl.textContent = rssurl;
 
         // Choose entries: Atom <entry> or RSS <item>
@@ -209,22 +211,7 @@
 
           // Title
           var titleText = getText(node, 'title') || '(no title)';
-
-          // Link handling: use feed's alternate link (via findLink)
-          var link = findLink(node);
-          if (link) {
-              // set anchor attributes so it behaves like a normal external link
-              linkEl.textContent = titleText;
-              linkEl.setAttribute('href', link);
-              linkEl.setAttribute('target', '_blank');
-              linkEl.setAttribute('rel', 'noopener');
-          } else {
-              // no link found: replace anchor with a plain span to avoid a dead link
-              var span = document.createElement('span');
-              span.className = linkEl.className;
-              span.textContent = titleText;
-              linkEl.parentNode.replaceChild(span, linkEl);
-          }
+          setNodeLink(linkEl, titleText, findLink(node));
 
           // Date parsing: try published/updated/pubDate
           var dateTags = ['published', 'updated', 'pubDate'];
