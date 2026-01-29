@@ -25,6 +25,11 @@
       </article>
     </template>
 
+    <template id="media-template">
+        <img class="media-image"></img>
+        <p class="media-content"></p>
+    </template>
+
     <div id="entries" aria-live="polite"></div>
   </div>
 
@@ -174,6 +179,7 @@
       var feedInfoEl = document.getElementById('feed-info');
       var entriesContainer = document.getElementById('entries');
       var template = document.getElementById('entry-template');
+      var templateMedia = document.getElementById('media-template');
 
       entriesContainer.innerHTML = '';
       feedInfoEl.textContent = 'Loading…';
@@ -231,18 +237,35 @@
 
           // Content: prefer <content> then <description> then summary
           var contentNode = node.getElementsByTagName('content')[0] || node.getElementsByTagName('description')[0] || node.getElementsByTagName('summary')[0];
-          var contentRaw = '';
           if (contentNode) {
             // try to extract HTML if present; otherwise textContent
-            contentRaw = getNodeInnerHtml(contentNode) || contentNode.textContent || '';
-          }
+            var contentRaw = getNodeInnerHtml(contentNode) || contentNode.textContent || '';
 
-          if (contentRaw && options.allowHtml && window.DOMPurify) {
-            contentEl.innerHTML = DOMPurify.sanitize(contentRaw);
-            contentEl.innerHTML = contentEl.textContent || contentEl.innerText;
+            if (contentRaw && options.allowHtml && window.DOMPurify) {
+              contentEl.innerHTML = DOMPurify.sanitize(contentRaw);
+              contentEl.innerHTML = contentEl.textContent || contentEl.innerText;
+            } else {
+              // Safe default: insert as text
+              contentEl.textContent = contentRaw;
+            }
           } else {
-            // Safe default: insert as text
-            contentEl.textContent = contentRaw;
+            var mediaImg = node.getElementsByTagName('media:thumbnail')[0];
+            var mediaDescrption = node.getElementsByTagName('media:description')[0];
+            var cloneMedia = templateMedia.content.cloneNode(true);
+            var imgEl = cloneMedia.querySelector('.media-image');
+            var descriptionEl = cloneMedia.querySelector('.media-content');
+
+            if (mediaImg) {
+                imgEl.setAttribute('src', mediaImg.getAttribute('url'));
+                imgEl.setAttribute('width', mediaImg.getAttribute('width'));
+                imgEl.setAttribute('height', mediaImg.getAttribute('height'));
+            }
+
+            if (mediaDescrption) {
+              descriptionEl.textContent = mediaDescrption.textContent;
+            }
+
+            contentEl.appendChild(cloneMedia);
           }
 
           entriesContainer.appendChild(clone);
