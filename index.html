@@ -220,22 +220,17 @@
             dateEl.textContent = '';
           }
 
-          // Content: prefer <content> then <description>
-          var contentNode = node.getElementsByTagName('content')[0] || node.getElementsByTagName('description')[0];
+          // Content: prefer <content> then <description> then summary
+          var contentNode = node.getElementsByTagName('content')[0] || node.getElementsByTagName('description')[0] || node.getElementsByTagName('summary')[0];
           var contentRaw = '';
           if (contentNode) {
             // try to extract HTML if present; otherwise textContent
-            contentRaw = getNodeInnerHtml(contentNode);
-            if (!contentRaw) contentRaw = contentNode.textContent || '';
-          } else {
-            // fallback: sometimes summary is used
-            var summary = node.getElementsByTagName('summary')[0];
-            contentRaw = summary ? (summary.textContent || '') : '';
+            contentRaw = getNodeInnerHtml(contentNode) || contentNode.textContent || '';
           }
 
           if (contentRaw && options.allowHtml && window.DOMPurify) {
-            alert("sanitized");
             contentEl.innerHTML = DOMPurify.sanitize(contentRaw);
+            contentEl.innerHTML = contentEl.textContent || contentEl.innerText;
           } else {
             // Safe default: insert as text
             contentEl.textContent = contentRaw;
