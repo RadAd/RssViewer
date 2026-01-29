@@ -255,7 +255,7 @@
         return;
       }
       // Optionally, ask whether to allow rendering HTML from feed (sanitized)
-      var allowHtml = confirm('Render feed HTML (sanitized with DOMPurify)? OK = yes, Cancel = no (text only).');
+      var allowHtml = true;  //confirm('Render feed HTML (sanitized with DOMPurify)? OK = yes, Cancel = no (text only).');
       fetchAndRenderFeed(rssurl.trim(), { allowHtml: allowHtml });
     })();
   </script>
