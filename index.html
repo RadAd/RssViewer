@@ -18,7 +18,7 @@
     <!-- Template for each feed entry -->
     <template id="entry-template">
       <article class="entry">
-        <h2 class="entry-title"></h2>
+        <h2 class="entry-title"><a class="entry-link"></a></h2>
         <div class="entry-meta"><time class="entry-date"></time></div>
         <div class="entry-content"></div>
       </article>
@@ -184,7 +184,7 @@
         } else {
             // no link found: replace anchor with a plain span to avoid a dead link
             var span = document.createElement('span');
-            span.className = 'entry-link';
+            span.className = feedLinkE.className;
             span.textContent = feedTitle;
             feedLinkEl.parentNode.replaceChild(span, feedLinkEl);
         }
@@ -203,20 +203,27 @@
         // Render each entry using the template
         nodes.forEach(function (node) {
           var clone = template.content.cloneNode(true);
-          var titleEl = clone.querySelector('.entry-title');
+          var linkEl = clone.querySelector('.entry-link');
           var dateEl = clone.querySelector('.entry-date');
           var contentEl = clone.querySelector('.entry-content');
 
           // Title
           var titleText = getText(node, 'title') || '(no title)';
-          titleEl.textContent = titleText;
 
-          // Link handling
+          // Link handling: use feed's alternate link (via findLink)
           var link = findLink(node);
           if (link) {
-            titleEl.addEventListener('click', function () { openURL(link); });
-            titleEl.style.textDecoration = 'underline';
-            titleEl.style.cursor = 'pointer';
+              // set anchor attributes so it behaves like a normal external link
+              linkEl.textContent = titleText;
+              linkEl.setAttribute('href', link);
+              linkEl.setAttribute('target', '_blank');
+              linkEl.setAttribute('rel', 'noopener');
+          } else {
+              // no link found: replace anchor with a plain span to avoid a dead link
+              var span = document.createElement('span');
+              span.className = linkEl.className;
+              span.textContent = titleText;
+              linkEl.parentNode.replaceChild(span, linkEl);
           }
 
           // Date parsing: try published/updated/pubDate
