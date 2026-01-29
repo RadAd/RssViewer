@@ -11,7 +11,7 @@
 <body>
   <div id="app">
     <header id="feed-header">
-      <h1 id="feed-title">RSS Viewer</h1>
+      <h1 id="feed-title"><a id="feed-link">RSS Viewer</a></h1>
       <div class="small" id="feed-info"></div>
     </header>
 
@@ -153,7 +153,7 @@
     // Main: fetch and render feed using template + DOMPurify for any HTML
     async function fetchAndRenderFeed(rssurl, options) {
       options = options || { allowHtml: true };
-      var feedTitleEl = document.getElementById('feed-title');
+      var feedLinkEl = document.getElementById('feed-link');
       var feedInfoEl = document.getElementById('feed-info');
       var entriesContainer = document.getElementById('entries');
       var template = document.getElementById('entry-template');
@@ -173,7 +173,21 @@
 
         // Feed-level title
         var feedTitle = (doc.getElementsByTagName('title')[0] && doc.getElementsByTagName('title')[0].textContent) || 'Feed';
-        feedTitleEl.textContent = feedTitle;
+        // Link handling: use feed's alternate link (via findLink)
+        var link = findLink(doc);
+        if (link) {
+            // set anchor attributes so it behaves like a normal external link
+            feedLinkEl.textContent = feedTitle;
+            feedLinkEl.setAttribute('href', link);
+            feedLinkEl.setAttribute('target', '_blank');
+            feedLinkEl.setAttribute('rel', 'noopener');
+        } else {
+            // no link found: replace anchor with a plain span to avoid a dead link
+            var span = document.createElement('span');
+            span.className = 'entry-link';
+            span.textContent = feedTitle;
+            feedLinkEl.parentNode.replaceChild(span, feedLinkEl);
+        }
         feedInfoEl.textContent = rssurl;
 
         // Choose entries: Atom <entry> or RSS <item>
